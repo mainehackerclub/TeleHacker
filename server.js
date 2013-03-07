@@ -13,6 +13,15 @@ var logger = new winston.Logger,
   options = {timestamp:true};
   logger.add(winston.transports.Console, options);
 
+// Twilo SMS setup.
+var client = new Telenode(Telenode.providers.twilio);
+client.credentials(creds);
+
+function smsHandler(err, body) {
+  if (err) throw err;
+  console.log('Body: ' + body);
+}
+
 // This HTTP server listens for GET & POST requests from Twilio.
 logger.info('Starting TeleHacker');
 var port = 1340;
@@ -28,31 +37,25 @@ var server = http.createServer(function(req,res) {
       logger.info('Incoming call completed.');
       res.statusCode = 200;
       res.end();
+      if (parsedUrl.query != '') {
+      var message = 'From ' + parsedUrl.query.From + ' CallStatus ' +
+                    parsedUrl.query.CallStatus + ' CallerCity ' +
+                    parsedUrl.query.CallerCity + ' CallerName ' +
+                    parsedUrl.query.CallerName;
+      logger.info('SMS Message: '+message);
+      }
+      /*
+      client.SMS.send(
+        {
+          from: creds.from.
+          to: creds.to,
+          body: message
+        },smsHandler
+      );
+     */
     }
   } else {
     fileServer.serve(req,res);
   }
 }).listen(port);
-
-/* Twilo SMS setup.
-var client = new Telenode(Telenode.providers.twilio);
-client.credentials(creds);
-
-function smsHandler(err, body) {
-  if (err) throw err;
-  console.log('Body: ' + body);
-}
-
-var destination = process.argv[2],
-    message = process.argv[3];
-
-console.log('dest: ' + destination + ' msg: ' + message);
-client.SMS.send(
-  {
-    from: '+1-857-264-3800',
-    to: destination,
-    body: message
-  },smsHandler
-);
-*/
 
