@@ -26,15 +26,14 @@ function smsHandler(err, body) {
 logger.info('Starting TeleHacker');
 var port = 1340;
 var server = http.createServer(function(req,res) {
-  logger.info('HTTP '+req.method+' '+req.url); 
   var parsedUrl = url.parse(req.url,true);
-  logger.info('parsedUrl: '+util.inspect(parsedUrl,false,2));
+  logger.info('HTTP '+req.method+' '+parsedUrl.pathname); 
   if  (parsedUrl.pathname === '/Incoming/Call') {
     if (req.method === 'GET') {
       fileServer.serveFile('./twiml/recordCall.xml', 200, {}, req, res);
-      logger.info('Incoming call received.');
       if (parsedUrl.query != '') {
-        var message = 'From ' + parsedUrl.query.From + ' CallStatus ' +
+        logger.info('Call details:\n'+util.inspect(parsedUrl.query));
+        var message = 'From ' + parsedUrl.query.From + '\nCallStatus ' +
                       parsedUrl.query.CallStatus + ' CallerCity ' +
                       parsedUrl.query.CallerCity + ' CallerName ' +
                       parsedUrl.query.CallerName;
@@ -46,7 +45,7 @@ var server = http.createServer(function(req,res) {
       res.end();
       client.SMS.send(
         {
-          from: creds.from.
+          from: creds.from,
           to: creds.to,
           body: message
         },smsHandler
