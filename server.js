@@ -33,17 +33,17 @@ var server = http.createServer(function(req,res) {
     if (req.method === 'GET') {
       fileServer.serveFile('./twiml/recordCall.xml', 200, {}, req, res);
       logger.info('Incoming call received.');
+      if (parsedUrl.query != '') {
+        var message = 'From ' + parsedUrl.query.From + ' CallStatus ' +
+                      parsedUrl.query.CallStatus + ' CallerCity ' +
+                      parsedUrl.query.CallerCity + ' CallerName ' +
+                      parsedUrl.query.CallerName;
+        logger.info('SMS Message: '+message);
+      }
     } else if (req.method === 'POST') {
       logger.info('Incoming call completed.');
       res.statusCode = 200;
       res.end();
-      if (parsedUrl.query != '') {
-      var message = 'From ' + parsedUrl.query.From + ' CallStatus ' +
-                    parsedUrl.query.CallStatus + ' CallerCity ' +
-                    parsedUrl.query.CallerCity + ' CallerName ' +
-                    parsedUrl.query.CallerName;
-      logger.info('SMS Message: '+message);
-      }
       /*
       client.SMS.send(
         {
