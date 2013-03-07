@@ -34,22 +34,22 @@ var server = http.createServer(function(req,res) {
       if (parsedUrl.query != '') {
         logger.info('Call details:\n'+util.inspect(parsedUrl.query));
         var message = 'From ' + parsedUrl.query.From + '\nCallStatus ' +
-                      parsedUrl.query.CallStatus + ' CallerCity ' +
-                      parsedUrl.query.CallerCity + ' CallerName ' +
+                      parsedUrl.query.CallStatus + '\nCallerCity ' +
+                      parsedUrl.query.CallerCity + '\nCallerName ' +
                       parsedUrl.query.CallerName;
+        client.SMS.send(
+          {
+            from: creds.from,
+            to: creds.to,
+            body: message
+          },smsHandler
+        );
         logger.info('SMS Message: '+message);
       }
     } else if (req.method === 'POST') {
       logger.info('Incoming call completed.');
       res.statusCode = 200;
       res.end();
-      client.SMS.send(
-        {
-          from: creds.from,
-          to: creds.to,
-          body: message
-        },smsHandler
-      );
     }
   } else {
     fileServer.serve(req,res);
