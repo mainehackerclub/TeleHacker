@@ -2,8 +2,10 @@
 var Telenode = require('telenode'),
     creds = require('./credentials')['twilio'],
     winston = require('winston'),
+    util = require('util'),
     static = require('node-static'),
     fileServer = new static.Server('.'),
+    url  = require('url'),
     http = require('http');
 
 // Winston logging setup.
@@ -11,19 +13,24 @@ var logger = new winston.Logger,
   options = {timestamp:true};
   logger.add(winston.transports.Console, options);
 
+// This HTTP server listens for GET & POST requests from Twilio.
 logger.info('Starting TeleHacker');
 var port = 1340;
 var server = http.createServer(function(req,res) {
   logger.info('HTTP '+req.method+' '+req.url); 
-  if  (req.url === '/Incoming/Call') {
+  var parsedUrl = url.parse(req.url,true);
+  logger.info('parsedUrl: '+util.inspect(parsedUrl,false,2));
+  if  (parsedUrl.pathname === '/Incoming/Call') {
     if (req.method === 'GET') {
       fileServer.serveFile('./twiml/recordCall.xml', 200, {}, req, res);
       logger.info('Incoming call received.');
-    } else if (reg.method === 'POST') {
-      logger.info('Incoming call completed.'+ req.body);
+    } else if (req.method === 'POST') {
+      logger.info('Incoming call completed.');
+      res.statusCode = 200;
+      res.end();
     }
   } else {
-    static.serve(req,res);
+    fileServer.serve(req,res);
   }
 }).listen(port);
 
