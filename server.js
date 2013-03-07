@@ -44,7 +44,6 @@ var server = http.createServer(function(req,res) {
       logger.info('Incoming call completed.');
       res.statusCode = 200;
       res.end();
-      /*
       client.SMS.send(
         {
           from: creds.from.
@@ -52,7 +51,6 @@ var server = http.createServer(function(req,res) {
           body: message
         },smsHandler
       );
-     */
     }
   } else {
     fileServer.serve(req,res);
