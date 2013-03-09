@@ -43,6 +43,24 @@ function sendAlertSms(twinfo) {
   logger.info('SMS Message: '+message);
 }
 
+function postHandler(req,query) {
+      logger.info('Call details:\n'+util.inspect(query));
+      res.statusCode = 200;
+      res.end();
+
+      //Process Request Body.
+      req.addListener('data', function(chunk) {
+        req.content += chunk;
+      });
+      req.addListener('end', function(chunk) {
+      if (req.content != '') {
+        var qs = querystring.parse(req.content);
+        logger.info('Parsed Request data:\n'+util.inspect(qs));
+        sendAlertSms(qs);
+      }
+    });
+}
+
 // This HTTP server listens for GET & POST requests from Twilio.
 logger.info('Starting TeleHacker');
 var port = 1340;
@@ -58,25 +76,19 @@ var server = http.createServer(function(req,res) {
       fileServer.serveFile('./twiml/recordCall.xml', 200, {}, req, res);
       if (parsedUrl.query != '') {
         logger.info('Call details:\n'+util.inspect(parsedUrl.query));
+	sendAlertSms(parsedUrl.query);
       }
-
     } else if (req.method === 'POST') {
       logger.info('Incoming call completed.');
-        logger.info('Call details:\n'+util.inspect(parsedUrl.query));
+      postHandler(req,parsedUrl.query);
+    }
+  } else if (parsedUrl.pathname === '/Incoming/Call/Complete') {
+    if (req.method === 'POST') {
+      logger.info('Incoming call completed.');
+      logger.info('Call details:\n'+util.inspect(parsedUrl.query));
       res.statusCode = 200;
       res.end();
-      sendAlertSms(parsedUrl.query);
-
-      //Process Request Body.
-      req.addListener('data', function(chunk) {
-	req.content += chunk;
-      });
-      req.addListener('end', function(chunk) {
-	if (req.content != '') {
-	  var qs = querystring.parse(req.content);
-	  logger.info('Parsed Request data:\n'+util.inspect(qs));
-	}
-      });
+      postHandler(req,parsedUrl.query)
     }
   } else {
     logger.info('Non-supported path, serving static file');
