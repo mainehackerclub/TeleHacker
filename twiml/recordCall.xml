@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Record maxLength="120" timeout="10" method="POST" action="http://awesomesauce.me:1340/Incoming/Call"/>
+  <Record maxLength="120" timeout="10" method="POST" action="http://192.81.218.125:1340/Incoming/Call"/>
 </Response>
