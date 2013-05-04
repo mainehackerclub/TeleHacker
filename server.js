@@ -45,8 +45,8 @@ function sendAlertSms(twinfo) {
 
 function postHandler(req,query) {
       logger.info('Call details:\n'+util.inspect(query));
-      res.statusCode = 200;
-      res.end();
+      //res.statusCode = 200;
+     // res.end();
 
       //Process Request Body.
       req.addListener('data', function(chunk) {
